@@ -1,21 +1,34 @@
 import * as readline from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
 
-import path from 'path'
+import path from 'path';
 import fs from 'fs';
 
 
 const outputFilePath = path.join(process.cwd(), 'wishlist.json');
 
 async function main() {
+    //const rl = readline.createInterface({ input, output });
+    //TODO 1: Read user input
+    //const answer = await rl.question("Type the number according to Menu option ");
+    while(true){
+        const answer = await getUserAnswer("MyWishList:~/ ");
+        //TODO 2: switch to current case
+        if(answer === "quit"){
+            console.log("bye");
+            break;
+        }
+        const standBy = await selectMenuOption(answer); 
+    }
+     
+}
+
+async function getUserAnswer(msg) {
     const rl = readline.createInterface({ input, output });
     //TODO 1: Read user input
-    const answer = await rl.question("Type the number according to Menu option ");
-
-    //TODO 2: switch to current case
-    selectMenuOption(answer);
-
+    const answer = await rl.question(msg);
     rl.close();
+    return answer;
 }
 
 async function selectMenuOption(answer) {
@@ -23,25 +36,27 @@ async function selectMenuOption(answer) {
     switch (answer) {
         case "1": {
             console.log('Add items to wishlist.');
-            addItem('my new item xddd', 1111.00, 'memito sv');
+            await addItem();
             break;
         }
         case "2": {
             console.log('View all wishlist items.');
-            listAllItems(outputFilePath);
+            await listAllItems(outputFilePath);
+            console.log('hit enter to continue');
             break;
         }
         case "3": {
             console.log('Edit item by ID');
-            editItemById(3, {
+            await editItemById(3, {
                 name: "my favorite product",
                 price: "23.41",
                 store: "wachime"
-            })
+            });
             break;
         }
         case "4": {
             console.log('Delete item by ID');
+            await deleteItemById(6);
             break;
         }
         default: {
@@ -50,8 +65,11 @@ async function selectMenuOption(answer) {
     }
 }
 
-async function addItem(name_, price_, store_) {
+async function addItem() {
     try {
+        const name_ =  await getUserAnswer("Name item: ~:/ ");
+        const price_ = await getUserAnswer("Price item: ~:/ ");
+        const store_ = await getUserAnswer("Store item: ~:/ ");
         //read current data and convert to object
         const receivedData = JSON.parse(await readFile(outputFilePath));
         //new item object id must be generate auto from last index
@@ -65,7 +83,7 @@ async function addItem(name_, price_, store_) {
         receivedData.wishlist.items.push(newItem);
 
         //write into to wishlist.json
-        writeContentToFile(receivedData);
+        await writeContentToFile(receivedData);
 
     } catch (err) {
         console.error("Some error\n ", err.message);
@@ -74,7 +92,7 @@ async function addItem(name_, price_, store_) {
     return 1;
 }
 //TODO 3: get file results and list it in screen
-function listAllItems(filePath) {
+async function listAllItems(filePath) {
     //using promises mixing with async 
     // readFile(filePath).then((chunk)=>{
     //     console.log('--- File chunk start ---');
@@ -82,14 +100,14 @@ function listAllItems(filePath) {
     //     console.log('--- File chunk end ---');
     // }
     // );
-    (async function () {
+    //(async function () {
         try {
             const receivedData = JSON.parse(await readFile(filePath));
             // console.log('--- File chunk start ---');
             //console.log(receivedData.wishlist.items);
             console.log(`*******************************************${receivedData.wishlist.header}*************************************`);
             receivedData.wishlist.items.forEach(item => {
-                console.log(`name: ${item.name}\nprice: ${item.price}\nstore: ${item.store}`);
+                console.log(`Id: ${item.id}\nname: ${item.name}\nprice: ${item.price}\nstore: ${item.store}`);
                 console.log(`*******************************************************************************************`);
 
             });
@@ -98,8 +116,7 @@ function listAllItems(filePath) {
         } catch (err) {
             console.error(err.message);
         }
-    })();
-    return 1;
+    //})();
 }
 
 //Edit an existing item
@@ -113,7 +130,7 @@ async function editItemById(id, updateContent) {
             if (item.id === id) {
                 item.name = updateContent.name;
                 item.price = updateContent.price;
-                item.store = updateContent.store
+                item.store = updateContent.store;
 
                 console.log(`id${item.id} modified with ${JSON.stringify(item)}`);
             }
@@ -131,8 +148,12 @@ async function deleteItemById(id) {
 
         let itemToDelete;
 
-        receivedData.wishlist.items.forEach(item => { if (item.id === id) {itemToDelete = item.id;}});
-        receivedData.wishlist.items.splice(itemToDelete)
+        receivedData.wishlist.items.forEach((item,index) => { if (item.id === id) {itemToDelete = index;}});
+        // remove id element
+        const newArrayOfItems = [...receivedData.wishlist.items];
+        newArrayOfItems.splice(itemToDelete,1);
+        
+        receivedData.wishlist.items = [...newArrayOfItems];
         writeContentToFile(receivedData);
     } catch (err) {
         console.error(err.message);
