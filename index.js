@@ -12,15 +12,16 @@ async function main() {
     //const rl = readline.createInterface({ input, output });
     //TODO 1: Read user input
     //const answer = await rl.question("Type the number according to Menu option ");
-    while(true){
-        const answer = await getUserAnswer("MyWishList:~/ ");
+    const args = process.argv.slice(2);//ignore first to arguments 
+    const command = args[0];
+ //   while(true){
+        //const answer = await getUserAnswer("MyWishList:~/ ");
         //TODO 2: switch to current case
-        if(answer === "quit"){
+        if(command === "quit"){
             console.log("bye");
-            break;
         }
-        const standBy = await selectMenuOption(answer); 
-    }
+        const standBy = await selectMenuOption(command); 
+   // }
      
 }
 
