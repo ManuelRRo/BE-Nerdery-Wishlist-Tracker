@@ -5,6 +5,7 @@ import path from 'path';
 import fs from 'fs';
 
 
+
 const outputFilePath = path.join(process.cwd(), 'wishlist.json');
 
 async function main() {
@@ -42,21 +43,16 @@ async function selectMenuOption(answer) {
         case "2": {
             console.log('View all wishlist items.');
             await listAllItems(outputFilePath);
-            console.log('hit enter to continue');
             break;
         }
         case "3": {
             console.log('Edit item by ID');
-            await editItemById(3, {
-                name: "my favorite product",
-                price: "23.41",
-                store: "wachime"
-            });
+            await editItemById();
             break;
         }
         case "4": {
             console.log('Delete item by ID');
-            await deleteItemById(6);
+            await deleteItemById();
             break;
         }
         default: {
@@ -121,40 +117,62 @@ async function listAllItems(filePath) {
 
 //Edit an existing item
 
-async function editItemById(id, updateContent) {
+async function editItemById() {
 
     try {
+        const id = await getUserAnswer("Item Id: ~:/ ");
+
         const receivedData = JSON.parse(await readFile(outputFilePath));
+        
+        let old_name,old_price,old_store,current_index;
 
-        receivedData.wishlist.items.forEach(item => {
-            if (item.id === id) {
-                item.name = updateContent.name;
-                item.price = updateContent.price;
-                item.store = updateContent.store;
+        receivedData.wishlist.items.forEach(async (item,index) => {
+           console.log(typeof(item.id),typeof(id));
+            if (item.id === Number(id)) {
+                //console.log(`id${item.id} modified with ${JSON.stringify(item)} ${id}`);
+                // item.name = name_;
+                // item.price = price_;
+                // item.store = store_;
+                old_name= item.name;
+                old_price= item.price;
+                old_store= item.store;
+                current_index = index;
 
-                console.log(`id${item.id} modified with ${JSON.stringify(item)}`);
+                
             }
         });
-        writeContentToFile(receivedData);
+        const name_ =  await getUserAnswer(`Old name item: ${old_name} ~:/ `);
+        const price_ = await getUserAnswer(`Old Price item: ${old_price} ~:/ `);
+        const store_ = await getUserAnswer(`Old Store item: ${old_store} ~:/ `);
+
+        receivedData.wishlist.items[current_index].name = name_;
+        receivedData.wishlist.items[current_index].price = price_;
+        receivedData.wishlist.items[current_index].store = store_;
+      
+        
+        //await writeContentToFile(receivedData);
+        await writeContentToFile(receivedData);
     } catch (err) {
         console.error(err.message);
     }
 }
 
-async function deleteItemById(id) {
+async function deleteItemById() {
+    
 
     try {
+        const id = await getUserAnswer("Item Id: ~:/ ");
         const receivedData = JSON.parse(await readFile(outputFilePath));
 
         let itemToDelete;
 
-        receivedData.wishlist.items.forEach((item,index) => { if (item.id === id) {itemToDelete = index;}});
+        receivedData.wishlist.items.forEach((item,index) => { if (item.id === Number(id)) {itemToDelete = index;}});
         // remove id element
         const newArrayOfItems = [...receivedData.wishlist.items];
         newArrayOfItems.splice(itemToDelete,1);
         
         receivedData.wishlist.items = [...newArrayOfItems];
-        writeContentToFile(receivedData);
+        await writeContentToFile(receivedData);
     } catch (err) {
         console.error(err.message);
     }
@@ -177,7 +195,7 @@ async function readFile(filePath) {
 }
 
 async function writeContentToFile(content) {
-    console.log(typeof (content));
+    
     try {
         await fs.writeFileSync(outputFilePath, JSON.stringify(content));
         return 1; //writing good
