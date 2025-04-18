@@ -13,7 +13,7 @@ async function main() {
     //TODO 1: Read user input
     //const answer = await rl.question("Type the number according to Menu option ");
     while(true){
-        const answer = await getUserAnswer("MyWishList:~/ ");
+        const answer = await getUserAnswer("(type help to show menu) / MyWishList:~/ ");
         //TODO 2: switch to current case
         if(answer === "quit"){
             console.log("bye");
@@ -55,6 +55,16 @@ async function selectMenuOption(answer) {
             await deleteItemById();
             break;
         }
+        case "help":{
+            console.log('📌 Welcome to the Wishlist Tracker!');
+            console.log('Please choose an option from the menu below:');
+            console.log('1. Add items to wishlist.');
+            console.log('2. View all wishlist items.');
+            console.log('3. Edit item by ID.');
+            console.log('4. Delete item by ID.');            
+            break;
+        }
+        
         default: {
             console.log(`The ${answer} option is not available.`);
         }
@@ -72,7 +82,7 @@ async function addItem() {
         const newItem = {
             id: receivedData.wishlist.lastIndex,
             name: name_,
-            price: price_,
+            price: Number(price_),
             store: store_
         }
         receivedData.wishlist.lastIndex++;
