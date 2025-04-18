@@ -12,15 +12,13 @@ async function main() {
     //const rl = readline.createInterface({ input, output });
     //TODO 1: Read user input
     //const answer = await rl.question("Type the number according to Menu option ");
-    const args = process.argv.slice(2);//ignore first to arguments 
-    const command = args[0];
- //   while(true){
-        //const answer = await getUserAnswer("MyWishList:~/ ");
+    while(true){
+        const answer = await getUserAnswer("(type help to show menu) / MyWishList:~/ ");
         //TODO 2: switch to current case
-        if(command === "quit"){
+        if(answer === "quit"){
             console.log("bye");
         }
-        const standBy = await selectMenuOption(command); 
+        const standBy = await selectMenuOption(answer); 
    // }
      
 }
@@ -56,6 +54,16 @@ async function selectMenuOption(answer) {
             await deleteItemById();
             break;
         }
+        case "help":{
+            console.log('📌 Welcome to the Wishlist Tracker!');
+            console.log('Please choose an option from the menu below:');
+            console.log('1. Add items to wishlist.');
+            console.log('2. View all wishlist items.');
+            console.log('3. Edit item by ID.');
+            console.log('4. Delete item by ID.');            
+            break;
+        }
+        
         default: {
             console.log(`The ${answer} option is not available.`);
         }
@@ -71,13 +79,16 @@ async function addItem() {
         const receivedData = JSON.parse(await readFile(outputFilePath));
         //new item object id must be generate auto from last index
         const newItem = {
-            id: 1,
+            id: receivedData.wishlist.lastIndex,
             name: name_,
-            price: price_,
+            price: Number(price_),
             store: store_
         }
+        receivedData.wishlist.lastIndex++;
         //add new item to wishlist items
         receivedData.wishlist.items.push(newItem);
+
+        
 
         //write into to wishlist.json
         await writeContentToFile(receivedData);

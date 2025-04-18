@@ -1,5 +1,4 @@
 # BE-Nerdery-Wishlist-Tracker
-
 Challenge “Wishlist Tracker"
 
 ### Description
@@ -29,3 +28,4 @@ update, and delete items from their wishlist, each with a name, price, and store
 1. CSV Export: Export the wishlist to a CSV file with item name, price, and store.
 2. Wishlist Summary:
    * Show the most expensive item, average price, total cost, and the number of items.
+
