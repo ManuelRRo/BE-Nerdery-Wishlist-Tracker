@@ -70,13 +70,16 @@ async function addItem() {
         const receivedData = JSON.parse(await readFile(outputFilePath));
         //new item object id must be generate auto from last index
         const newItem = {
-            id: 1,
+            id: receivedData.wishlist.lastIndex,
             name: name_,
             price: price_,
             store: store_
         }
+        receivedData.wishlist.lastIndex++;
         //add new item to wishlist items
         receivedData.wishlist.items.push(newItem);
+
+        
 
         //write into to wishlist.json
         await writeContentToFile(receivedData);
