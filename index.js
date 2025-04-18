@@ -113,12 +113,15 @@ async function listAllItems(filePath) {
             const receivedData = JSON.parse(await readFile(filePath));
             // console.log('--- File chunk start ---');
             //console.log(receivedData.wishlist.items);
-            console.log(`*******************************************${receivedData.wishlist.header}*************************************`);
+            if(receivedData.wishlist.items.length===0){console.log("Sorry no items.")}
+            else{
+                console.log(`*******************************************${receivedData.wishlist.header}*************************************`);
             receivedData.wishlist.items.forEach(item => {
                 console.log(`Id: ${item.id}\nname: ${item.name}\nprice: ${item.price}\nstore: ${item.store}`);
                 console.log(`*******************************************************************************************`);
 
             });
+            }
             // console.log('--- File chunk end ---');
 
         } catch (err) {
@@ -136,8 +139,8 @@ async function editItemById() {
 
         const receivedData = JSON.parse(await readFile(outputFilePath));
         
-        let old_name,old_price,old_store,current_index;
-
+        let old_name,old_price,old_store,current_index=null;
+        if(receivedData.wishlist.items.length===0){console.log("Sorry no items.")}
         receivedData.wishlist.items.forEach(async (item,index) => {
            console.log(typeof(item.id),typeof(id));
             if (item.id === Number(id)) {
@@ -149,21 +152,24 @@ async function editItemById() {
                 old_price= item.price;
                 old_store= item.store;
                 current_index = index;
-
-                
             }
         });
-        const name_ =  await getUserAnswer(`Old name item: ${old_name} ~:/ `);
-        const price_ = await getUserAnswer(`Old Price item: ${old_price} ~:/ `);
-        const store_ = await getUserAnswer(`Old Store item: ${old_store} ~:/ `);
+        if(current_index!=null){
+            const name_ =  await getUserAnswer(`Old name item: '${old_name}' ~:/ `);
+            const price_ = await getUserAnswer(`Old Price item: '${old_price}' ~:/ `);
+            const store_ = await getUserAnswer(`Old Store item: '${old_store}' ~:/ `);
+    
+            receivedData.wishlist.items[current_index].name = name_;
+            receivedData.wishlist.items[current_index].price = price_;
+            receivedData.wishlist.items[current_index].store = store_;
+          
+            
+            //await writeContentToFile(receivedData);
+            await writeContentToFile(receivedData);
+        }else{
+            console.log(`No item with id: ${id}`);
+        }
 
-        receivedData.wishlist.items[current_index].name = name_;
-        receivedData.wishlist.items[current_index].price = price_;
-        receivedData.wishlist.items[current_index].store = store_;
-      
-        
-        //await writeContentToFile(receivedData);
-        await writeContentToFile(receivedData);
     } catch (err) {
         console.error(err.message);
     }
@@ -175,16 +181,23 @@ async function deleteItemById() {
     try {
         const id = await getUserAnswer("Item Id: ~:/ ");
         const receivedData = JSON.parse(await readFile(outputFilePath));
+        if(receivedData.wishlist.items.length===0){console.log("Sorry no items.")}
+        else{
+            let itemToDelete = null;
 
-        let itemToDelete;
+            receivedData.wishlist.items.forEach((item,index) => { if (item.id === Number(id)) {itemToDelete = index;}});
+            // remove id element
+            console.log(itemToDelete);
+            if(itemToDelete != null){
+                const newArrayOfItems = [...receivedData.wishlist.items];
+                newArrayOfItems.splice(itemToDelete,1);
+                receivedData.wishlist.items = [...newArrayOfItems];
+                await writeContentToFile(receivedData);
+            }else{
+                console.log(`No item with id: ${id}`);
+            }
+        }
 
-        receivedData.wishlist.items.forEach((item,index) => { if (item.id === Number(id)) {itemToDelete = index;}});
-        // remove id element
-        const newArrayOfItems = [...receivedData.wishlist.items];
-        newArrayOfItems.splice(itemToDelete,1);
-        
-        receivedData.wishlist.items = [...newArrayOfItems];
-        await writeContentToFile(receivedData);
     } catch (err) {
         console.error(err.message);
     }
@@ -209,8 +222,9 @@ async function readFile(filePath) {
 async function writeContentToFile(content) {
     
     try {
+        console.log("Writting ...");
         await fs.writeFileSync(outputFilePath, JSON.stringify(content));
-        return 1; //writing good
+        console.log("Saved.");
     } catch (err) {
 
         console.log("Error writing wishlist.json\n", err);
