@@ -1,1 +1,7 @@
-{"wishlist":{"lastIndex": 0,"header":"My Wishlist","items":[]}} 
+{
+    "wishlist": {
+        "lastIndex": 0,
+        "header": "My Wishlist",
+        "items": []
+    }
+}

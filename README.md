@@ -29,3 +29,10 @@ update, and delete items from their wishlist, each with a name, price, and store
 2. Wishlist Summary:
    * Show the most expensive item, average price, total cost, and the number of items.
 
+### File Description
+1. index.js - main program
+2. wishlist.json -  wishlist data
+3. init.json - copy the content of this to "wishlist.json" to restart wishlit app
+
+
+
