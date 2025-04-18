@@ -17,10 +17,9 @@ async function main() {
         //TODO 2: switch to current case
         if(answer === "quit"){
             console.log("bye");
-            break;
         }
         const standBy = await selectMenuOption(answer); 
-    }
+   // }
      
 }
 
